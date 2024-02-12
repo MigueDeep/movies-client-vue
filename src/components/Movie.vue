@@ -1,60 +1,95 @@
 <template>
     <div>
-        <h1 class="title mt-5">Movies</h1>
-        <div class="moda">
-            <!-- Button trigger modal -->
-            <button type="button" class="btn btn-primary openModal" data-bs-toggle="modal" data-bs-target="#exampleModal">
-                Agregar pelicula
-            </button>
-            <!-- Modal -->
-            <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h1 class="modal-title fs-5" id="exampleModalLabel">Agregar pelicula</h1>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                            <form>
-                                <div class="mb-3">
-                                    <label for="exampleInputEmail1" class="form-label">Nombre</label>
-                                    <input type="text" class="form-control" id="name" v-model="form.name">
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label">Director</label>
-                                    <input type="text" class="form-control" v-model="form.director">
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label">Duraci√≥n</label>
-                                    <input type="text" class="form-control" v-model="form.duration">
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label">Categor√≠a</label>
-                                    <select class="form-select" aria-label="Default select example">
-                                        <option selected>Selecciona una...</option>
-                                        <option value="1">Terror</option>
-                                        <option value="2">Romance</option>
-                                        <option value="3">Accion</option>
-                                        <option value="3">Aventura</option>
-                                    </select>
-                                    <hr>
-                                    <button type="button" class="btn btn-primary">Agregar</button>
-                                    <button type="reset" class="btn btn-danger mx-2">Reset</button>
-                                </div>
-                            </form>
+        <nav class="navbar navbar-dark bg-dark">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="#">Navbar</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <a class="nav-link active" aria-current="page" href="#">Peliculas</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+        <div class="container">
+            <h1 class="title mt-5">Peliculas App</h1>
+            <div class="moda">
+                <!-- Button trigger modal -->
+                <button type="button" class="btn btn-primary open-modal mb-5" data-bs-toggle="modal"
+                    data-bs-target="#exampleModal" on-click="onReset">
+                    Agregar pelicula
+                </button>
+                <!-- Modal -->
+                <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+                    aria-hidden="true">
+                    <div class="alert alert-danger my-alert" role="alert" v-if="errors.length > 0">
+                        <ol>
+                            <li v-for="err in errors">
+                                {{ err }}
+                            </li>
+                        </ol>
+                    </div>
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h1 class="modal-title fs-5" id="exampleModalLabel">Agregar pelicula</h1>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <form @submit="onSubmit" @reset="onReset">
+                                    <div class="mb-3">
+                                        <label for="exampleInputEmail1" class="form-label">Nombre</label>
+                                        <input type="text" class="form-control" id="name" v-model="form.name">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Director</label>
+                                        <input type="text" class="form-control" v-model="form.director">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Duraci√≥n</label>
+                                        <input type="text" class="form-control" v-model="form.duration">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Categori≠a</label>
+                                        <select class="form-select" aria-label="Default select example"
+                                            v-model="form.gender" >
+                                            <option selected>Selecciona una...</option>
+                                            <option v-for="item in gender" :value="item">{{ item.gender }}</option>
+                                        </select>
+                                        <hr>
+                                        <button type="submit" class="btn btn-primary">Agregar</button>
+                                        <button type="reset" class="btn btn-danger mx-2">Reset</button>
+                                    </div>
+                                </form>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="cards">
-            <div class="card" style="width: 18rem;">
-                <img src="..." class="card-img-top" alt="...">
-                <div class="card-body">
-                    <h5 class="card-title">Card title</h5>
-                    <p class="card-text">Some quick example text to build on the card title and make up the bulk of the
-                        card's content.</p>
-                    <a href="#" class="btn btn-primary">Go somewhere</a>
+            <div class="loader">
+                <div class="d-flex justify-content-center">
+                <div class="spinner-border" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
+            </div>
+            <div class="cards">
+                <div class="card" style="width: 18rem;" v-for="item of data">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ item.name }}</h5> 
+                        <h6 class="card-subtitle mb-2 text-muted">{{ item.duration }}</h6>
+                        <p class="card-text">Diricted by {{ item.director }}</p>
+                        <p class="card-text">Categoria: {{ item.gender.gender }}</p>
+                        <div class="my-buttons">
+                            <button class="btn btn-primary" @click="updateMovie(item.id)">Editar</button>
+                            <button class="btn btn-danger" @click="deleteMovieA(item.id)">Eliminar</button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -63,16 +98,139 @@
 
 <script>
 
-export default{
-    data(){
-        return{
+import moviesService from '../service/Movie'
+
+export default {
+    data() {
+        return {
             form: {
                 name: '',
                 director: '',
                 duration: '',
-                categoria: ''
-            }
+                gender: {
+                    id: '',
+                    gender: ''
+                }
+            },
+            errors: [],
+            data: [],
+            gender: []
         }
+    },
+    mounted() {
+        this.getMovies()
+        this.getGender()
+    },
+    methods: {
+        onSubmit: function (e) {
+            this.errors = []
+            Object.entries(this.form).forEach((key) => {
+                if (key[1] === "") {
+                    this.errors.push("El campo " + key + " es requerido")
+                }
+            })
+            if (!this.validateDuration(this.form.duration) && this.form.duration !== "") {
+                this.errors.push("El formato de la duracion es incorrecto, debe ser en formato 00:00")
+            }
+            if (this.errors.length === 0 ) {
+                const loader = document.querySelector('.loader')
+                const newData = {
+                    id: Math.floor(Math.random() * 100),
+                    name: this.form.name,
+                    director: this.form.director,
+                    duration: this.form.duration,
+                    gender: {
+                        id: this.form.gender.id,
+                        gender: this.form.gender.gender
+                    }
+                }
+                console.log(newData)
+                this.addMovie(newData)
+                loader.style.display = 'none'
+            }
+            e.preventDefault()
+        },
+        onReset: function () {
+            this.errors = []
+            this.form = {
+                name: '',
+                director: '',
+                duration: '',
+                gender: {
+                    id: '',
+                    gender: ''
+                }
+            }
+        },
+        validateDuration: function (duration) {
+            var re = /^\d{1,2}:\d{2}([ap]m)?$/;
+            return re.test(duration);
+        },
+        async getMovies() {
+            try {
+                const loader = document.querySelector('.loader')
+                const data = await moviesService.getMovies()
+                this.data = data.data
+                loader.style.display = 'none'
+            } catch (err) {
+                console.log(err)
+            }
+        },
+        async addMovie() {
+            try {
+                
+                const response = await moviesService.addMovie(newData)
+                this.getMovies()
+            } catch (err) {
+                console.log(err)
+            }
+        },
+        async getGender() {
+            try {
+                const data = await moviesService.getGender()
+                this.gender = data.data
+            } catch (err) {
+                console.log(err)
+            }
+        },
+        deleteMovieA(id) {
+            try {
+                Swal.fire({
+                    title: "Estas seguro?",
+                    text: "No podras revertir esta acciÛn!",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#3085d6",
+                    cancelButtonColor: "#d33",
+                    confirmButtonText: "SÌ, eliminar!"
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        this.deleteMovie(id)
+                        Swal.fire({
+                            title: "Pelicula eliminada!",
+                            text: "La peli ha sido eliminada.",
+                            icon: "success"
+                        });
+                    }
+                });
+            } catch (err) {
+                console.log(err)
+            }
+        },
+        async deleteMovie(id) {
+            try {
+                const loader = document.querySelector('.loader')
+                const response = await moviesService.deleteMovie(id)
+                this.getMovies()
+                loader.style.display = 'none'
+            } catch (err) {
+                console.log(err)
+            }
+        },
+        updateMovie(id) {
+
+
+        },
     }
 }
 
@@ -87,5 +245,25 @@ export default{
     display: flex;
     align-items: flex-end;
     justify-content: flex-end;
+}
+
+.cards {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 3rem;
+    margin: 0 auto;
+}
+
+.my-alert {
+    width: 20rem;
+    margin: 0 auto;
+    margin-top: 2rem;
+    margin-bottom: -3rem;
+}
+
+.my-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
 }
 </style>
