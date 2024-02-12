@@ -57,7 +57,7 @@
                                     <div class="mb-3">
                                         <label class="form-label">Categori≠a</label>
                                         <select class="form-select" aria-label="Default select example"
-                                            v-model="form.gender" >
+                                            v-model="form.gender">
                                             <option selected>Selecciona una...</option>
                                             <option v-for="item in gender" :value="item">{{ item.gender }}</option>
                                         </select>
@@ -73,21 +73,72 @@
             </div>
             <div class="loader">
                 <div class="d-flex justify-content-center">
-                <div class="spinner-border" role="status">
-                    <span class="visually-hidden">Loading...</span>
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
                 </div>
-            </div>
             </div>
             <div class="cards">
                 <div class="card" style="width: 18rem;" v-for="item of data">
                     <div class="card-body">
-                        <h5 class="card-title">{{ item.name }}</h5> 
+                        <h5 class="card-title">{{ item.name }}</h5>
                         <h6 class="card-subtitle mb-2 text-muted">{{ item.duration }}</h6>
                         <p class="card-text">Diricted by {{ item.director }}</p>
                         <p class="card-text">Categoria: {{ item.gender.gender }}</p>
                         <div class="my-buttons">
-                            <button class="btn btn-primary" @click="updateMovie(item.id)">Editar</button>
                             <button class="btn btn-danger" @click="deleteMovieA(item.id)">Eliminar</button>
+                            <button type="button" class="btn btn-primary open-modal mb-5" data-bs-toggle="modal"
+                                data-bs-target="#updateModal" @click="getMovie(item.id)">
+                                Editar pelicula
+                            </button>
+                            <!-- Modal -->
+                            <div class="modal fade" id="updateModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+                                aria-hidden="true">
+                                <div class="alert alert-danger my-alert" role="alert" v-if="errors.length > 0">
+                                    <ol>
+                                        <li v-for="err in errors">
+                                            {{ err }}
+                                        </li>
+                                    </ol>
+                                </div>
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h1 class="modal-title fs-5" id="exampleModalLabel">Actualizar pelicula</h1>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <form @submit="onSubmit" @reset="onReset">
+                                                <div class="mb-3">
+                                                    <label for="exampleInputEmail1" class="form-label">Nombre</label>
+                                                    <input type="text" class="form-control" id="name" v-model="toUpdate.name">
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label">Director</label>
+                                                    <input type="text" class="form-control" v-model="toUpdate.name">
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label">Duraci√≥n</label>
+                                                    <input type="text" class="form-control" v-model="toUpdate.duration">
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label">Categori≠a</label>
+                                                    <select class="form-select" aria-label="Default select example"
+                                                        v-model="toUpdate.gender">
+                                                        <option selected>Selecciona una...</option>
+                                                        <option v-for="item in gender" :value="item">{{ item.gender }}
+                                                        </option>
+                                                    </select>
+                                                    <hr>
+                                                    <button type="submit" class="btn btn-primary">Agregar</button>
+                                                    <button type="reset" class="btn btn-danger mx-2">Reset</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -114,12 +165,14 @@ export default {
             },
             errors: [],
             data: [],
-            gender: []
+            gender: [],
+            toUpdate: []
         }
     },
     mounted() {
         this.getMovies()
         this.getGender()
+        this.getMovie()
     },
     methods: {
         onSubmit: function (e) {
@@ -132,7 +185,7 @@ export default {
             if (!this.validateDuration(this.form.duration) && this.form.duration !== "") {
                 this.errors.push("El formato de la duracion es incorrecto, debe ser en formato 00:00")
             }
-            if (this.errors.length === 0 ) {
+            if (this.errors.length === 0) {
                 const loader = document.querySelector('.loader')
                 const newData = {
                     id: Math.floor(Math.random() * 100),
@@ -178,9 +231,18 @@ export default {
         },
         async addMovie() {
             try {
-                
+
                 const response = await moviesService.addMovie(newData)
                 this.getMovies()
+            } catch (err) {
+                console.log(err)
+            }
+        },
+        async getMovie(id) {
+            try {
+                const data = await moviesService.getMovie(id)
+                this.toUpdate = data.data
+                console.log(this.toUpdate)
             } catch (err) {
                 console.log(err)
             }
