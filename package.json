@@ -7,6 +7,8 @@
     "preview": "vite preview --port 4173"
   },
   "dependencies": {
+    "@asika32764/vue-animate": "^3.0.2",
+    "@formkit/tempo": "^0.0.13",
     "axios": "^1.6.7",
     "vue": "^2.7.7",
     "vue-router": "^3.6.5"

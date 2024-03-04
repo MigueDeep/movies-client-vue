@@ -11,6 +11,7 @@
                     <ul class="navbar-nav">
                         <li class="nav-item">
                             <a class="nav-link active" aria-current="page" href="#">Peliculas</a>
+                            <a class="nav-link active" aria-current="page" href="/peliculas2">Peliculas drag and drop</a>
                         </li>
                     </ul>
                 </div>
@@ -55,6 +56,10 @@
                                         <input type="text" class="form-control" v-model="form.duration">
                                     </div>
                                     <div class="mb-3">
+                                        <label class="form-label">Anio de publicacion</label>
+                                        <input type="text" class="form-control" v-model="form.publication_date">
+                                    </div>
+                                    <div class="mb-3">
                                         <label class="form-label">Categori≠a</label>
                                         <select class="form-select" aria-label="Default select example"
                                             v-model="form.gender">
@@ -71,7 +76,27 @@
                     </div>
                 </div>
             </div>
-            <div class="loader">
+
+            <!-- Filter -->
+
+            <div class="input-group mb-3">
+                <form @submit="onSearch">
+                    <select class="form-select" id="inputGroupSelect01">
+                        <option selected class="select">Buscar por...</option>
+                        <option value="nombre">Nombre</option>
+                        <option value="director">Director</option>
+                        <option value="anio">Anio de publicacion</option>
+                        <option value="categoria">Categoria</option>
+                    </select>
+                    <!-- Segun el value que seleccione, es el input por     el que va a buscar -->
+                    <input type="text" class="form-control" placeholder="Buscar..." aria-label="Buscar..."
+                        aria-describedby="button-addon2">
+
+                    <button class="btn btn-outline-secondary" type="submit" id="button-addon2">Buscar</button>
+                </form>
+            </div>
+
+            <div class="loader mt-5">
                 <div class="d-flex justify-content-center">
                     <div class="spinner-border" role="status">
                         <span class="visually-hidden">Loading...</span>
@@ -84,10 +109,12 @@
                         <h5 class="card-title">{{ item.name }}</h5>
                         <h6 class="card-subtitle mb-2 text-muted">{{ item.duration }}</h6>
                         <p class="card-text">Diricted by {{ item.director }}</p>
-                        <p class="card-text">Categoria: {{ item.gender.gender }}</p>
+                        <p class="card-text">Anio de publicacion {{
+                            new Date(item.publication_date).getFullYear()
+                        }}</p>
                         <div class="my-buttons">
                             <button class="btn btn-danger" @click="deleteMovieA(item.id)">Eliminar</button>
-                            <button type="button" class="btn btn-primary open-modal mb-5" data-bs-toggle="modal"
+                            <button type="button" class="btn btn-primary open-modal" data-bs-toggle="modal"
                                 data-bs-target="#updateModal" @click="getMovie(item.id)">
                                 Editar pelicula
                             </button>
@@ -109,21 +136,27 @@
                                                 aria-label="Close"></button>
                                         </div>
                                         <div class="modal-body">
-                                            <form @submit="onSubmit" @reset="onReset">
+                                            <form @submit="onSubmitUpdate" @reset="onReset">
                                                 <div class="mb-3">
                                                     <label for="exampleInputEmail1" class="form-label">Nombre</label>
-                                                    <input type="text" class="form-control" id="name" v-model="toUpdate.name">
+                                                    <input type="text" class="form-control" id="name"
+                                                        v-model="toUpdate.name">
                                                 </div>
                                                 <div class="mb-3">
                                                     <label class="form-label">Director</label>
-                                                    <input type="text" class="form-control" v-model="toUpdate.name">
+                                                    <input type="text" class="form-control" v-model="toUpdate.director">
                                                 </div>
                                                 <div class="mb-3">
-                                                    <label class="form-label">Duraci√≥n</label>
+                                                    <label class="form-label">Duracion</label>
                                                     <input type="text" class="form-control" v-model="toUpdate.duration">
                                                 </div>
                                                 <div class="mb-3">
-                                                    <label class="form-label">Categori≠a</label>
+                                                    <label class="form-label">Fecha de publicacion</label>
+                                                    <input type="date" class="form-control"
+                                                        v-model="toUpdate.publication_date">
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label">Categoria</label>
                                                     <select class="form-select" aria-label="Default select example"
                                                         v-model="toUpdate.gender">
                                                         <option selected>Selecciona una...</option>
@@ -131,7 +164,7 @@
                                                         </option>
                                                     </select>
                                                     <hr>
-                                                    <button type="submit" class="btn btn-primary">Agregar</button>
+                                                    <button type="submit" class="btn btn-primary">Actualizar</button>
                                                     <button type="reset" class="btn btn-danger mx-2">Reset</button>
                                                 </div>
                                             </form>
@@ -150,6 +183,7 @@
 <script>
 
 import moviesService from '../service/Movie'
+import { format } from "@formkit/tempo"
 
 export default {
     data() {
@@ -158,6 +192,7 @@ export default {
                 name: '',
                 director: '',
                 duration: '',
+                publication_date: '',
                 gender: {
                     id: '',
                     gender: ''
@@ -188,16 +223,15 @@ export default {
             if (this.errors.length === 0) {
                 const loader = document.querySelector('.loader')
                 const newData = {
-                    id: Math.floor(Math.random() * 100),
                     name: this.form.name,
                     director: this.form.director,
                     duration: this.form.duration,
+                    publication_date: this.form.publication_date,
                     gender: {
                         id: this.form.gender.id,
                         gender: this.form.gender.gender
                     }
                 }
-                console.log(newData)
                 this.addMovie(newData)
                 loader.style.display = 'none'
             }
@@ -215,6 +249,38 @@ export default {
                 }
             }
         },
+        onSearch: function (e) {
+            //mostrar el valor del select
+            console.log(e.target[0].value)
+            const value = e.target[0].value
+            //mostrar el valor del input
+            console.log(e.target[1].value)
+            const input = e.target[1].value
+            e.preventDefault()
+        },
+        onSubmitUpdate: function (e) {
+            this.errors = []
+            Object.entries(this.toUpdate).forEach((key) => {
+                if (key[1] === "") {
+                    this.errors.push("El campo " + key + " es requerido")
+                }
+            })
+            if (!this.validateDuration(this.toUpdate.duration) && this.toUpdate.duration !== "") {
+                this.errors.push("El formato de la duracion es incorrecto, debe ser en formato 00:00")
+            }
+            if (this.errors.length === 0) {
+                const loader = document.querySelector('.loader')
+                const newData = {
+                    name: this.toUpdate.name,
+                    director: this.toUpdate.director,
+                    duration: this.toUpdate.duration,
+                    publication_date: this.toUpdate.publication_date,
+                }
+                this.updateMovie(this.toUpdate.id, newData)
+                loader.style.display = 'none'
+            }
+            e.preventDefault()
+        },
         validateDuration: function (duration) {
             var re = /^\d{1,2}:\d{2}([ap]m)?$/;
             return re.test(duration);
@@ -223,16 +289,20 @@ export default {
             try {
                 const loader = document.querySelector('.loader')
                 const data = await moviesService.getMovies()
-                this.data = data.data
-                loader.style.display = 'none'
+                this.data = data.data.data
+                if (this.data.length > 0) {
+                    loader.style.display = 'none'
+                }
             } catch (err) {
                 console.log(err)
             }
         },
-        async addMovie() {
+        async addMovie(newData) {
             try {
 
-                const response = await moviesService.addMovie(newData)
+                const response = await moviesService.saveMovie(newData)
+                console.log(response)
+                location.reload()
                 this.getMovies()
             } catch (err) {
                 console.log(err)
@@ -241,7 +311,15 @@ export default {
         async getMovie(id) {
             try {
                 const data = await moviesService.getMovie(id)
-                this.toUpdate = data.data
+                const date = new Date(data.data.data.publication_date)
+                const newDate = format(date, "short")
+                const newData = {
+                    name: data.data.data.name,
+                    director: data.data.data.director,
+                    duration: data.data.data.duration,
+                    publication_date: new Date(newDate).toISOString().split('T')[0],
+                }
+                this.toUpdate = newData
                 console.log(this.toUpdate)
             } catch (err) {
                 console.log(err)
@@ -250,7 +328,7 @@ export default {
         async getGender() {
             try {
                 const data = await moviesService.getGender()
-                this.gender = data.data
+                this.gender = data.data.data
             } catch (err) {
                 console.log(err)
             }
@@ -289,9 +367,14 @@ export default {
                 console.log(err)
             }
         },
-        updateMovie(id) {
-
-
+        async updateMovie(id, newData) {
+            try {
+                const response = await moviesService.updateMovie(id, newData)
+                console.log(response)
+                reload()
+            } catch (err) {
+                console.log(err)
+            }
         },
     }
 }

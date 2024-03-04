@@ -1,14 +1,21 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:8082/api/peliculas/"
-const API_URL_DELETE = "http://localhost:8082/api/peliculas/delete/"
-const API_URL_GENDER = "http://localhost:8082/api/generos/"
-const API_URL_SAVE = "http://localhost:8082/api/peliculas/save"
-const API_URL_GET_ID    = "http://localhost:8082/api/peliculas/get/"
+const API_URL = "http://localhost:8082/api/movies/"
+const API_URL_GENDER = "http://localhost:8082/api/genders/"
+
 
 const getMovies = async() => {
     try{
         const response = axios.get(API_URL)
+        return response
+    }catch(err){
+        console.log(err)
+    }
+}
+
+const getMovie = async(id) => {
+    try{
+        const response = axios.get(API_URL + id)
         return response
     }catch(err){
         console.log(err)
@@ -24,18 +31,9 @@ const getGender = async() => {
     }
 }
 
-const getMovie = async(id) => {
-    try{
-        const response = axios.get(API_URL_GET_ID + id)
-        return response
-    }catch(err){
-        console.log(err)
-    }
-}
-
 const saveMovie = async(movie) => {
     try{
-        const response = axios.post(API_URL_SAVE, movie )
+        const response = axios.post(API_URL, movie )
         return response
     }catch(err){
         console.log(err)
@@ -45,7 +43,7 @@ const saveMovie = async(movie) => {
 
 const deleteMovie = async(id) => {
     try{
-        const response = axios.delete(API_URL_DELETE + id)
+        const response = axios.delete(API_URL + id)
         return response
     }catch(err){
         console.log(err)
@@ -53,14 +51,21 @@ const deleteMovie = async(id) => {
 
 }
 
+const updateMovie = async(id, movie) => {
+    try{
+        const response = axios.put(API_URL + id, movie)
+        return response
+    }catch(err){
+        console.log(err)
+    }
+}
 
-
-getMovies()
 
 export default {
     getMovies,
     getMovie,
     deleteMovie,
     getGender,
-    saveMovie
+    saveMovie,
+    updateMovie
 }
