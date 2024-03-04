@@ -60,7 +60,7 @@
                                         <input type="text" class="form-control" v-model="form.publication_date">
                                     </div>
                                     <div class="mb-3">
-                                        <label class="form-label">Categori­a</label>
+                                        <label class="form-label">Categoriï¿½a</label>
                                         <select class="form-select" aria-label="Default select example"
                                             v-model="form.gender">
                                             <option selected>Selecciona una...</option>
@@ -183,7 +183,6 @@
 <script>
 
 import moviesService from '../service/Movie'
-import { format } from "@formkit/tempo"
 
 export default {
     data() {
@@ -337,12 +336,12 @@ export default {
             try {
                 Swal.fire({
                     title: "Estas seguro?",
-                    text: "No podras revertir esta acción!",
+                    text: "No podras revertir esta acciï¿½n!",
                     icon: "warning",
                     showCancelButton: true,
                     confirmButtonColor: "#3085d6",
                     cancelButtonColor: "#d33",
-                    confirmButtonText: "Sí, eliminar!"
+                    confirmButtonText: "Sï¿½, eliminar!"
                 }).then((result) => {
                     if (result.isConfirmed) {
                         this.deleteMovie(id)
